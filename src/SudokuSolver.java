@@ -149,16 +149,6 @@ public class SudokuSolver {
 				}
 			}			
 		}
-		
-		//for each box
-			//get all the possiblities
-			
-			//add them to a hashmap with empty lists
-			
-			//build the array list for each key in the hashmap with its possible positions
-			
-			//for all arraylists of length 1 set that value
-		
 		return foundValue;
 	}
 	
