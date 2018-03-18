@@ -12,10 +12,11 @@ import java.util.Map.Entry;
 public class SudokuSolver {
 
 	public static void main(String[] args) {
+		//create the grid and the reader writer
 		SudokuReaderWriter rw = new SudokuReaderWriter();
 		SudokuGrid gameGrid = new SudokuGrid();
 		
-		//Check if a filename was given as a parameter
+		//Check if a filename was given as a parameter and read in accordingly 
 		if (args.length >= 1) {
 			Reader reader = null;
 			try {
@@ -39,25 +40,23 @@ public class SudokuSolver {
 		//process the starting values
 		initialPass(gameGrid);
 		
-		//keep processing the next steps
+		//keep processing the next steps until one does not make progress
 		Boolean progressed = true;
 		int passes = 0;
 		
 		while (progressed) {
 			progressed = false;
 			
-			//all the passes should be called here
+			//Calls to all of the logic passes
 			boolean boxes = boxOnlyPass(gameGrid);
 			boolean rows = rowOnlyPass(gameGrid);
 			boolean columns = columnOnlyPass(gameGrid);
 			boolean forcedRows = forcedRowPass(gameGrid);
 			
-			progressed = boxes || rows || columns;
+			//detect whether progressed and update number of passes
+			progressed = boxes || rows || columns || forcedRows;
 			passes++;
 		}
-		
-		System.out.println("Completed in " + passes + " passes");
-		gameGrid.testOutput();
 		
 		//check if output file name was given else use default
 		Writer writer = null;
@@ -74,15 +73,18 @@ public class SudokuSolver {
 		rw.writeSolution(gameGrid, writer);
 		
 		//display the solution on terminal
-		outputSolution();
+		outputSolution(gameGrid, passes);
 	}
 	
-	//initial pass to start process
+	//Initial pass to start the process
+	//Calls set cell for all the values present initialy 
 	private static void initialPass(SudokuGrid grid) {
+		//lists to hold all the values and their locations
 		ArrayList<Integer> value = new ArrayList<Integer>();
 		ArrayList<Integer> row = new ArrayList<Integer>();
 		ArrayList<Integer> column = new ArrayList<Integer>();
 		
+		//loop over every cell and add the ones with values to the lists
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 9; j++) {
 				int val = grid.getCellValue(i, j);
@@ -94,6 +96,7 @@ public class SudokuSolver {
 			}
 		}
 		
+		//call set cell for all the values in the list
 		for (int i = 0; i < value.size(); i++) {
 			grid.setCell(value.get(i), row.get(i), column.get(i));
 		}
@@ -152,11 +155,12 @@ public class SudokuSolver {
 		return foundValue;
 	}
 	
+	//pass that checks each row to determine if any of the values yet to be placed can only go in one spot
+	//returns true if a value was placed
 	private static boolean rowOnlyPass(SudokuGrid gameGrid) {
+		//iterate over every row
 		boolean foundValue = false;
-		
 		for (int row = 0; row < 9; row++) {
-			//each rows code goes here
 			
 			//create the set of remaining values for the row
 			HashSet<Integer> remaining = new HashSet<Integer>();
@@ -170,13 +174,13 @@ public class SudokuSolver {
 				}
 			}
 			
-			//create empty array lists in the hashmap
+			//create an empty array list for each value yet to be placed
 			HashMap<Integer, ArrayList<Integer>> possibleLocations = new HashMap<Integer, ArrayList<Integer>>();
 			for (Integer i : remaining) {
 				possibleLocations.put(i, new ArrayList<Integer>());
 			}
 			
-			//populate array lists
+			//populate the above lists with their possible locations
 			for (int i = 0; i < 9; i++) {
 				for (Integer k : remaining) {
 					if (gameGrid.canBe(k, row, i)) {
@@ -185,7 +189,7 @@ public class SudokuSolver {
 				}
 			}
 			
-			//check for lists of length 1
+			//look for possible locations lists with length 1 and assign their value
 			for (Entry<Integer, ArrayList<Integer>> i : possibleLocations.entrySet()) {
 				if (i.getValue().size() == 1) {
 					gameGrid.setCell(i.getKey(), row, i.getValue().get(0));
@@ -198,13 +202,14 @@ public class SudokuSolver {
 		return foundValue;
 	}
 	
+	//Pass that checks each column and for all remaining values determines if there is only one place it can go
+	//Returns true if at least 1 value was set
 	private static boolean columnOnlyPass(SudokuGrid gameGrid) {
+		//iterate over each column
 		boolean foundValue = false;
-		
 		for (int column = 0; column < 9; column++) {
-			//each rows code goes here
 			
-			//create the set of remaining values for the row
+			//create the set of remaining values for the column
 			HashSet<Integer> remaining = new HashSet<Integer>();
 			for (int i = 1; i < 10; i++) {
 				remaining.add(i);
@@ -216,13 +221,13 @@ public class SudokuSolver {
 				}
 			}
 			
-			//create empty array lists in the hashmap
+			//create an array list of possible locations for each remaining value
 			HashMap<Integer, ArrayList<Integer>> possibleLocations = new HashMap<Integer, ArrayList<Integer>>();
 			for (Integer i : remaining) {
 				possibleLocations.put(i, new ArrayList<Integer>());
 			}
 			
-			//populate array lists
+			//populate the possibility lists 
 			for (int i = 0; i < 9; i++) {
 				for (Integer k : remaining) {
 					if (gameGrid.canBe(k, i, column)) {
@@ -231,7 +236,7 @@ public class SudokuSolver {
 				}
 			}
 			
-			//check for lists of length 1
+			//check for possibility lists of length 1 and set the value accordingly
 			for (Entry<Integer, ArrayList<Integer>> i : possibleLocations.entrySet()) {
 				if (i.getValue().size() == 1) {
 					gameGrid.setCell(i.getKey(), i.getValue().get(0), column);
@@ -244,15 +249,21 @@ public class SudokuSolver {
 		return foundValue;
 	}
 	
+	//pass that determines if remaining values can only go in 1 row and removes the possibilities from the rest of the row
 	private static boolean forcedRowPass(SudokuGrid gameGrid) {
+		
+		//iterate over every box
 		boolean toReturn = false;
+		
 		
 		return toReturn;
 	}
 	
 	//display the solution nicely on the terminal
-	private static void outputSolution() {
-		
+	private static void outputSolution(SudokuGrid gameGrid, int passes) {
+		//Output the result to the terminal
+		System.out.println("Completed in " + passes + " passes");
+		gameGrid.testOutput();
 	}
 
 }

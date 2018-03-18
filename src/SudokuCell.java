@@ -53,6 +53,7 @@ public class SudokuCell {
 		return value;
 	}
 	
+	//returns true if val is in the posiblity list and this cells value is not set
 	public boolean canBe(int val) {
 		if (value == -1) {
 			return possibilities.contains(val);

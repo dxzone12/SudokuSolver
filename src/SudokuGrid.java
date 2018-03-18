@@ -1,6 +1,6 @@
 
 public class SudokuGrid {
-	
+	//underlying array of grid cells
 	private SudokuCell[][] grid = new SudokuCell[9][9];
 
 	//add a cell to the grid used for constructing the grid
@@ -9,6 +9,7 @@ public class SudokuGrid {
 	}
 	
 	//set the value of a cell
+	//clearing it as a possiblity in its column, row and box
 	public void setCell(int val, int row, int col) {
 		grid[row][col].setValue(val);
 		clearBox(val, row, col);
@@ -16,8 +17,9 @@ public class SudokuGrid {
 		clearColumn(val, col);
 	}
 	
-	//private functions to remove possibilities from columns and rows 
+	//private functions to remove possibilities from a column, row and box
 	private boolean clearRow(int val, int row) {
+		//iterate over the row removing the value as a possibility
 		for (int i = 0; i < 9; i++) {
 			if (grid[row][i].removePossibility(val)) {
 				System.out.println("Possibilities");
@@ -27,6 +29,7 @@ public class SudokuGrid {
 		return false;
 	}
 	private boolean clearColumn(int val, int column) {
+		//iterate over the column removing the value as a possibility
 		for (int i = 0; i < 9; i++) {
 			if (grid[i][column].removePossibility(val)) {
 				System.out.println("Possibilities");
@@ -39,6 +42,7 @@ public class SudokuGrid {
 		int rowOffset = (row/3) * 3;
 		int columnOffset = (col/3) * 3;
 		
+		//iterate over the box and remove the value as a posibility for each cell
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
 				if (grid[(rowOffset + i)][(columnOffset + j)].removePossibility(val)) {
