@@ -21,9 +21,11 @@ public class SudokuGrid {
 	private boolean clearRow(int val, int row) {
 		//iterate over the row removing the value as a possibility
 		for (int i = 0; i < 9; i++) {
-			if (grid[row][i].removePossibility(val)) {
-				System.out.println("Possibilities");
-				setCell(val, row, i);
+			int autoVal = grid[row][i].removePossibility(val);
+			if (autoVal > 0) {
+				System.out.println("Possibilities " + val + " row: " + row + " column: " + i);
+				
+				setCell(autoVal, row, i);
 			}
 		}
 		return false;
@@ -31,9 +33,10 @@ public class SudokuGrid {
 	private boolean clearColumn(int val, int column) {
 		//iterate over the column removing the value as a possibility
 		for (int i = 0; i < 9; i++) {
-			if (grid[i][column].removePossibility(val)) {
-				System.out.println("Possibilities");
-				setCell(val, i, column);
+			int autoVal = grid[i][column].removePossibility(val);
+			if ( autoVal > 0) {
+				System.out.println("Possibilities " + val + " row: " + i + " column: " + column);
+				setCell(autoVal, i, column);
 			}
 		}
 		return false;
@@ -45,9 +48,10 @@ public class SudokuGrid {
 		//iterate over the box and remove the value as a posibility for each cell
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
-				if (grid[(rowOffset + i)][(columnOffset + j)].removePossibility(val)) {
-					System.out.println("Possibilities");
-					setCell(val, (rowOffset + i), (columnOffset + j));
+				int autoVal = grid[(rowOffset + i)][(columnOffset + j)].removePossibility(val);
+				if (autoVal > 0) {
+					System.out.println("Possibilities " + val + " row: " + (rowOffset + i) + " column: " + (columnOffset + j));
+					setCell(autoVal, (rowOffset + i), (columnOffset + j));
 				}
 			}
 		}
@@ -73,6 +77,40 @@ public class SudokuGrid {
 			}
 			System.out.println();
 		}
+	}
+
+	public void clearColumnExceptOffest(int val, int column, int rowOffset) {
+		for (int i = 0; i < 9; i++) {
+			if (i < rowOffset || i >= (rowOffset+3)) {
+				int autoVal = grid[i][column].removePossibility(val);
+				if (autoVal > 0) {
+					System.out.println("Possibilities");
+					setCell(val, i, column);
+				}
+			}
+		}
+	}
+	
+	public void clearRowExceptOffest(int val, int row, int columnOffset) {
+		for (int i = 0; i < 9; i++) {
+			if (i < columnOffset || i >= (columnOffset+3)) {
+				int autoVal = grid[row][i].removePossibility(val);
+				if (autoVal > 0) {
+					System.out.println("Possibilities");
+					setCell(autoVal, row, i);
+				}
+			}
+		}
+	}
+
+	public void printCellPoss(int i, int j) {
+		System.out.print("Possible values of " + i + " " + j + " are:");
+		for (int k = 1; k <= 9; k++) {
+			if (grid[i][j].canBe(k)) {
+				System.out.print(" " + k);
+			}
+		}
+		System.out.println(".");
 	}
 
 }

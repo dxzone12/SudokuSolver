@@ -15,7 +15,7 @@ public class SudokuCell {
 		
 		//create the set of possibilities
 		possibilities = new HashSet<Integer>();
-		for (int i = 0; i < 10; i++) {
+		for (int i = 1; i <= 9; i++) {
 			possibilities.add(i);
 		}
 		
@@ -32,17 +32,17 @@ public class SudokuCell {
 	
 	//remove passed val from list of possibilities
 	//set this cells value if only 1 possibility is left
-	public boolean removePossibility(int val) {
+	public int removePossibility(int val) {
 		possibilities.remove(val);
 		
 		if (possibilities.size() == 1 && value == -1) {
 			for (Integer i : possibilities) {
 				value = i;
-				return true;
+				return i;
 			}
 		}
 		
-		return false;
+		return -1;
 	}
 	
 	//setter and getter for cell value

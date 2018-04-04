@@ -41,7 +41,8 @@ public class SudokuSolver {
 		initialPass(gameGrid);
 		
 		//keep processing the next steps until one does not make progress
-		Boolean progressed = true;
+		boolean progressed = true;
+		
 		int passes = 0;
 		
 		while (progressed) {
@@ -51,12 +52,15 @@ public class SudokuSolver {
 			boolean boxes = boxOnlyPass(gameGrid);
 			boolean rows = rowOnlyPass(gameGrid);
 			boolean columns = columnOnlyPass(gameGrid);
-			boolean forcedRows = forcedRowPass(gameGrid);
+			boolean forcedRows = forcedRowEliminationPass(gameGrid);
+			boolean forcedColumns = forcedColumnEliminationPass(gameGrid);
+			//TODO make a pass that clears boxes based on forced locations in rows and columns
 			
 			//detect whether progressed and update number of passes
-			progressed = boxes || rows || columns || forcedRows;
+			progressed = boxes || rows || columns;
 			passes++;
 		}
+		gameGrid.printCellPoss(8, 8);
 		
 		//check if output file name was given else use default
 		Writer writer = null;
@@ -249,15 +253,111 @@ public class SudokuSolver {
 		return foundValue;
 	}
 	
-	//pass that determines if remaining values can only go in 1 row and removes the possibilities from the rest of the row
-	private static boolean forcedRowPass(SudokuGrid gameGrid) {
+	//pass determines if for any box a number can only go in a single row and eliminates it as a possibility for the rest of the row
+	private static boolean forcedRowEliminationPass(SudokuGrid gameGrid) {
+		boolean foundValue = false;
 		
-		//iterate over every box
-		boolean toReturn = false;
-		
-		
-		return toReturn;
+		//iterate over each box
+		for (int rowOffset = 0; rowOffset < 7; rowOffset+=3) {
+			for (int columnOffset = 0; columnOffset < 7; columnOffset+=3) {
+				//deal with each box in here
+				
+				//create the list of remaining digits
+				HashSet<Integer> remaining = new HashSet<Integer>();
+				for (int i = 1; i <= 9; i++) {
+					remaining.add(i);
+				}
+				for (int i = 0; i < 3; i++) {
+					for (int j = 0; j < 3; j++) {
+						if (gameGrid.getCellValue((rowOffset + i), (columnOffset + j)) > 0) {
+							remaining.remove(gameGrid.getCellValue((rowOffset + i), (columnOffset + j)));
+						}
+					}
+				}
+				
+				//create empty hashsets in the hashmap
+				HashMap<Integer, HashSet<Integer>> possibleRows = new HashMap<Integer, HashSet<Integer>>();
+				for (Integer i : remaining) {
+					possibleRows.put(i, new HashSet<Integer>());
+				}
+				
+				//build the hashsets
+				for (int i = 0; i < 3; i++) {
+					for (int j = 0; j < 3; j++) {
+						for (Integer k: remaining) {
+							if (gameGrid.canBe(k, (rowOffset + i), (columnOffset + j))) {
+								possibleRows.get(k).add(i);
+							}
+						}
+					}
+				}
+				
+				//check for sets of size 1
+				for (Entry<Integer, HashSet<Integer>> i : possibleRows.entrySet()) {
+					if (i.getValue().size() == 1) {
+						//for any set of size 1 eliminate that column in all other boxes
+						gameGrid.clearRowExceptOffest(i.getKey(), (rowOffset + i.getValue().iterator().next()), columnOffset);
+						foundValue = true;
+						System.out.println("forcedRow");
+					}
+				}
+			}			
+		}
+		return foundValue;
 	}
+	
+	//pass determines if for any box a number can only go in a single column and eliminates it as a possiblity in the rest of the column
+		private static boolean forcedColumnEliminationPass(SudokuGrid gameGrid) {
+			boolean foundValue = false;
+			
+			//iterate over each box
+			for (int rowOffset = 0; rowOffset < 7; rowOffset+=3) {
+				for (int columnOffset = 0; columnOffset < 7; columnOffset+=3) {
+					//deal with each box in here
+					
+					//create the list of remaining digits
+					HashSet<Integer> remaining = new HashSet<Integer>();
+					for (int i = 1; i <= 9; i++) {
+						remaining.add(i);
+					}
+					for (int i = 0; i < 3; i++) {
+						for (int j = 0; j < 3; j++) {
+							if (gameGrid.getCellValue((rowOffset + i), (columnOffset + j)) > 0) {
+								remaining.remove(gameGrid.getCellValue((rowOffset + i), (columnOffset + j)));
+							}
+						}
+					}
+					
+					//create empty hashsets in the hashmap
+					HashMap<Integer, HashSet<Integer>> possibleColumns = new HashMap<Integer, HashSet<Integer>>();
+					for (Integer i : remaining) {
+						possibleColumns.put(i, new HashSet<Integer>());
+					}
+					
+					//build the hashsets
+					for (int i = 0; i < 3; i++) {
+						for (int j = 0; j < 3; j++) {
+							for (Integer k: remaining) {
+								if (gameGrid.canBe(k, (rowOffset + i), (columnOffset + j))) {
+									possibleColumns.get(k).add(j);
+								}
+							}
+						}
+					}
+					
+					//check for sets of size 1
+					for (Entry<Integer, HashSet<Integer>> i : possibleColumns.entrySet()) {
+						if (i.getValue().size() == 1) {
+							//for any set of size 1 eliminate that column in all other boxes
+							gameGrid.clearColumnExceptOffest(i.getKey(), (columnOffset + i.getValue().iterator().next()), rowOffset);
+							foundValue = true;
+							System.out.println("forcedColumn");
+						}
+					}
+				}			
+			}
+			return foundValue;
+		}
 	
 	//display the solution nicely on the terminal
 	private static void outputSolution(SudokuGrid gameGrid, int passes) {
