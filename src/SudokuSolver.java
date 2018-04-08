@@ -54,13 +54,16 @@ public class SudokuSolver {
 			boolean columns = columnOnlyPass(gameGrid);
 			boolean forcedRows = forcedRowEliminationPass(gameGrid);
 			boolean forcedColumns = forcedColumnEliminationPass(gameGrid);
-			//TODO make a pass that clears boxes based on forced locations in rows and columns
+			boolean forcedBoxRow = forcedBoxRowEliminationPass(gameGrid);
+			boolean forcedBoxColumn = forcedBoxColumnEliminationPass(gameGrid);
+			//pass for two cells with the same 2 possibilities in the same box, column or row
 			
 			//detect whether progressed and update number of passes
 			progressed = boxes || rows || columns;
 			passes++;
 		}
-		gameGrid.printCellPoss(8, 8);
+		
+		gameGrid.printCellPoss(1, 5);
 		
 		//check if output file name was given else use default
 		Writer writer = null;
@@ -79,7 +82,7 @@ public class SudokuSolver {
 		//display the solution on terminal
 		outputSolution(gameGrid, passes);
 	}
-	
+
 	//Initial pass to start the process
 	//Calls set cell for all the values present initialy 
 	private static void initialPass(SudokuGrid grid) {
@@ -356,6 +359,98 @@ public class SudokuSolver {
 					}
 				}			
 			}
+			return foundValue;
+		}
+		
+		//pass to determine which boxes each number must go in for each column and eliminate it as a possibility for all other cells in box
+		private static boolean forcedBoxColumnEliminationPass(SudokuGrid gameGrid) {
+			//iterate over each column
+			boolean foundValue = false;
+			for (int column = 0; column < 9; column++) {
+				
+				//create the set of remaining values for the column
+				HashSet<Integer> remaining = new HashSet<Integer>();
+				for (int i = 1; i < 10; i++) {
+					remaining.add(i);
+				}
+				for (int i = 0; i < 9; i++) {
+					int cellValue = gameGrid.getCellValue(i, column);
+					if (cellValue > 0) {
+						remaining.remove(cellValue);
+					}
+				}
+				
+				//create a hashset of possible boxes for each remaining value
+				HashMap<Integer, HashSet<Integer>> possibleLocations = new HashMap<Integer, HashSet<Integer>>();
+				for (Integer i : remaining) {
+					possibleLocations.put(i, new HashSet<Integer>());
+				}
+				
+				//populate the possibility lists 
+				for (int i = 0; i < 9; i++) {
+					for (Integer k : remaining) {
+						if (gameGrid.canBe(k, i, column)) {
+							possibleLocations.get(k).add(i/3);
+						}
+					}
+				}
+				
+				//check for possibility lists of length 1 and set the value accordingly
+				for (Entry<Integer, HashSet<Integer>> i : possibleLocations.entrySet()) {
+					if (i.getValue().size() == 1) {
+						gameGrid.clearBoxExceptColumn(i.getKey(), i.getValue().iterator().next(), column);
+						foundValue = true;
+						System.out.println("forcedColumnElimination");
+					}
+				}
+			}
+			
+			return foundValue;
+		}
+
+		//pass to determine which boxes each number must go in for each row and eliminate it as a possibility for all other cells in box
+		private static boolean forcedBoxRowEliminationPass(SudokuGrid gameGrid) {
+			//iterate over each column
+			boolean foundValue = false;
+			for (int row = 0; row < 9; row++) {
+				
+				//create the set of remaining values for the column
+				HashSet<Integer> remaining = new HashSet<Integer>();
+				for (int i = 1; i < 10; i++) {
+					remaining.add(i);
+				}
+				for (int i = 0; i < 9; i++) {
+					int cellValue = gameGrid.getCellValue(row, i);
+					if (cellValue > 0) {
+						remaining.remove(cellValue);
+					}
+				}
+				
+				//create a hashset of possible boxes for each remaining value
+				HashMap<Integer, HashSet<Integer>> possibleLocations = new HashMap<Integer, HashSet<Integer>>();
+				for (Integer i : remaining) {
+					possibleLocations.put(i, new HashSet<Integer>());
+				}
+				
+				//populate the possibility lists 
+				for (int i = 0; i < 9; i++) {
+					for (Integer k : remaining) {
+						if (gameGrid.canBe(k, row, i)) {
+							possibleLocations.get(k).add(i/3);
+						}
+					}
+				}
+				
+				//check for possibility lists of length 1 and set the value accordingly
+				for (Entry<Integer, HashSet<Integer>> i : possibleLocations.entrySet()) {
+					if (i.getValue().size() == 1) {
+						gameGrid.clearBoxExceptRow(i.getKey(), i.getValue().iterator().next(), row);
+						foundValue = true;
+						System.out.println("forcedRowElimination");
+					}
+				}
+			}
+			
 			return foundValue;
 		}
 	
