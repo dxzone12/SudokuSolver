@@ -131,15 +131,4 @@ public class SudokuGrid {
 			}
 		}
 	}
-
-	public void printCellPoss(int i, int j) {
-		System.out.print("Possible values of " + i + " " + j + " are:");
-		for (int k = 1; k <= 9; k++) {
-			if (grid[i][j].canBe(k)) {
-				System.out.print(" " + k);
-			}
-		}
-		System.out.println(".");
-	}
-
 }

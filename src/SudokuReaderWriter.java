@@ -4,9 +4,9 @@ import java.io.Writer;
 
 public class SudokuReaderWriter {
 
-	//function to read a sudoku problem from a file
+	//function to read in a sodoku problem
 	//blank grid cells should be denoted with a -
-	public SudokuGrid readFromFile(Reader reader) {
+	public SudokuGrid readGrid(Reader reader) {
 		SudokuGrid toReturn = new SudokuGrid();
 		
 		int count = 0;
@@ -37,12 +37,6 @@ public class SudokuReaderWriter {
 		}
 		
 		return toReturn;
-	}
-
-	//function to read a sudoku problem from stdin
-	public SudokuGrid readFromInput() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	//write the solution in csv form to a file

@@ -2,6 +2,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -13,47 +14,51 @@ public class SudokuSolver {
 
 	public static void main(String[] args) {
 		//check if first parameter is help and if so print usage
-		if (args[0].equalsIgnoreCase("help")) {
-			System.out.println("This program can be run with 0, 1 or 2 parameters.");
-			System.out.println("0 parameters: will read from standard in and output to sol.txt and standard out");
-			System.out.println("1 parameter: will read from the given file name and output to sol.txt and standard out");
-			System.out.println("2 parameters: will read from the given file name and output to the second given file name and standard out");			
-			return;
+		if (args.length > 0) {
+			if (args[0].equalsIgnoreCase("help")) {
+				System.out.println("This program can be run with 0, 1 or 2 parameters.");
+				System.out.println("0 parameters: will read from standard in and output to sol.txt and standard out");
+				System.out.println("1 parameter: will read from the given file name and output to sol.txt and standard out");
+				System.out.println("2 parameters: will read from the given file name and output to the second given file name and standard out");			
+				return;
+			}
 		}
 		
 		//create the grid and the reader writer
 		SudokuReaderWriter rw = new SudokuReaderWriter();
 		SudokuGrid gameGrid = new SudokuGrid();
 		
-		//Check if a filename was given as a parameter and read in accordingly 
+		//create a reader for input
+		Reader reader = null;
+		//open a reader from the file or std input depending on args
 		if (args.length >= 1) {
-			Reader reader = null;
 			try {
 				reader = new FileReader(args[0]);
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 				System.exit(1);
 			}
-			gameGrid = rw.readFromFile(reader);
-			try {
-				reader.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
 		} else {
-			//ask the user to input one
-			gameGrid = rw.readFromInput();
+			reader = new InputStreamReader(System.in);
+		}
+		
+		//read from the reader and then close the reader
+		gameGrid = rw.readGrid(reader);
+		try {
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
 		}
 		
 		//process the starting values
 		initialPass(gameGrid);
 		
-		//keep processing the next steps until one does not make progress
+		//boolean to track if a pas makes progress and int to count number of passes
 		boolean progressed = true;
-		
 		int passes = 0;
 		
+		//main loop keep making passes till no new progress is made 
 		while (progressed) {
 			progressed = false;
 			
@@ -65,16 +70,14 @@ public class SudokuSolver {
 			boolean forcedColumns = forcedColumnEliminationPass(gameGrid);
 			boolean forcedBoxRow = forcedBoxRowEliminationPass(gameGrid);
 			boolean forcedBoxColumn = forcedBoxColumnEliminationPass(gameGrid);
-			//pass for two cells with the same 2 possibilities in the same box, column or row
+			// TODO pass for two cells with the same 2 possibilities in the same box, column or row
 			
 			//detect whether progressed and update number of passes
 			progressed = boxes || rows || columns;
 			passes++;
 		}
 		
-		gameGrid.printCellPoss(1, 5);
-		
-		//check if output file name was given else use default
+		//check if output file name was given else use sol.txt
 		Writer writer = null;
 		try {
 			if (args.length >= 2) {
@@ -86,9 +89,9 @@ public class SudokuSolver {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		rw.writeSolution(gameGrid, writer);
 		
-		//display the solution on terminal
+		//write solution to file and output to terminal
+		rw.writeSolution(gameGrid, writer);
 		outputSolution(gameGrid, passes);
 	}
 
