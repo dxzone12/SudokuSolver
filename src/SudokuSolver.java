@@ -12,6 +12,15 @@ import java.util.Map.Entry;
 public class SudokuSolver {
 
 	public static void main(String[] args) {
+		//check if first parameter is help and if so print usage
+		if (args[0].equalsIgnoreCase("help")) {
+			System.out.println("This program can be run with 0, 1 or 2 parameters.");
+			System.out.println("0 parameters: will read from standard in and output to sol.txt and standard out");
+			System.out.println("1 parameter: will read from the given file name and output to sol.txt and standard out");
+			System.out.println("2 parameters: will read from the given file name and output to the second given file name and standard out");			
+			return;
+		}
+		
 		//create the grid and the reader writer
 		SudokuReaderWriter rw = new SudokuReaderWriter();
 		SudokuGrid gameGrid = new SudokuGrid();
