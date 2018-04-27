@@ -69,16 +69,21 @@ public class SudokuGrid {
 	}
 	
 	//test function to be removed later just displays the grid to terminal
-	public void testOutput() {
+	public void printGrid() {
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 9; j++) {
-				System.out.print(grid[i][j].getValue());
+				if (grid[i][j].getValue() > 0) {
+					System.out.print(grid[i][j].getValue());
+				} else {
+					System.out.print("-");
+				}
 				System.out.print(" ");
 			}
 			System.out.println();
 		}
 	}
 
+	//functions to clear the given possiblity from rows and columns excluding a certain box
 	public void clearColumnExceptOffest(int val, int column, int rowOffset) {
 		for (int i = 0; i < 9; i++) {
 			if (i < rowOffset || i >= (rowOffset+3)) {
@@ -90,7 +95,6 @@ public class SudokuGrid {
 			}
 		}
 	}
-	
 	public void clearRowExceptOffest(int val, int row, int columnOffset) {
 		for (int i = 0; i < 9; i++) {
 			if (i < columnOffset || i >= (columnOffset+3)) {
@@ -103,6 +107,7 @@ public class SudokuGrid {
 		}
 	}
 	
+	//functions to clear given possibility from a box excluding a single column or row
 	public void clearBoxExceptColumn(int val, int box, int column) {
 		for (int i = (box * 3); i < ((box * 3) + 3); i++) {
 			for (int j = ((column/3) * 3); j < (((column/3) * 3) + 3); j++) {
@@ -117,7 +122,6 @@ public class SudokuGrid {
 			}
 		}
 	}
-	
 	public void clearBoxExceptRow(int val, int box, int row) {
 		for (int i = ((row/3) * 3); i < (((row/3) * 3) + 3); i++) {
 			for (int j = (box * 3); j < ((box * 3) + 3); j++) {

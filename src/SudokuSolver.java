@@ -470,7 +470,7 @@ public class SudokuSolver {
 	private static void outputSolution(SudokuGrid gameGrid, int passes) {
 		//Output the result to the terminal
 		System.out.println("Completed in " + passes + " passes");
-		gameGrid.testOutput();
+		gameGrid.printGrid();
 	}
 
 }
