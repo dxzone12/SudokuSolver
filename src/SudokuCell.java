@@ -10,6 +10,7 @@ public class SudokuCell {
 	//set of possible values for this cell
 	private Set<Integer> possibilities;
 	
+	//Constructor that takes the current character and the grid that this cell is a part of
 	public SudokuCell(char nextChar, SudokuGrid sudokuGrid) {
 		grid = sudokuGrid;
 		
